@@ -990,20 +990,23 @@ img {
     }
     
     .navbar {
-        position: fixed;
-        top: 80px;
-        right: -100%;
-        width: 80%;
-        height: calc(100vh - 80px);
-        background-color: var(--white);
-        box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-        transition: right 0.3s;
-        overflow-y: auto;
-    }
-    
-    .navbar.active {
-        right: 0;
-    }
+    position: fixed;
+    top: 120px;
+    left: 0;
+    width: 60%;
+    height: calc(100vh - 80px);
+    background-color: var(--white);
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+    transform: translateX(-100%); /* مخفية من اليسار */
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+    z-index: 1000; /* عشان ما تختفي تحت العناصر */
+}
+
+.navbar.active {
+    transform: translateX(0); /* تدخل من اليسار */
+}
+
     
     .navbar ul {
         flex-direction: column;
