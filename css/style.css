@@ -169,7 +169,7 @@ img {
 
 /* هيرو القسم */
 .hero {
-    background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url('../images/hero-bg.jpg');
+    background: linear-gradient(rgba(9, 25, 41, 0.8), rgba(4, 54, 104, 0.8)), url('../images/hero-bg.jpg');
     background-size: cover;
     background-position: center;
     color: var(--white);
@@ -316,7 +316,7 @@ img {
 
 /* صفحة البانر */
 .page-banner {
-    background: linear-gradient(rgba(44, 62, 80, 0.8), rgba(44, 62, 80, 0.8)), url('../images/page-banner.jpg');
+    background: linear-gradient(rgba(9, 25, 41, 0.8), rgba(4, 54, 104, 0.8)), url('../images/page-banner.jpg');
     background-size: cover;
     background-position: center;
     color: var(--white);
