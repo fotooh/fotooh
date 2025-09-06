@@ -658,6 +658,13 @@ img {
     gap: 50px;
     margin-top: 40px;
 }
+.contact-form {
+    background: #fff;
+    border-radius: 10px;
+    padding: 30px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
 
 .contact-form h2,
 .contact-info h2 {
@@ -700,59 +707,192 @@ img {
     min-height: 150px;
 }
 
-.info-item {
-    display: flex;
-    align-items: flex-start;
-    margin-bottom: 25px;
-}
-
-.info-item i {
-    font-size: 24px;
-    color: var(--secondary-color);
-    margin-left: 15px;
-    margin-top: 5px;
-}
-
-.info-item h3 {
-    margin-bottom: 8px;
-    font-size: 20px;
-}
-
-.working-hours {
-    margin: 30px 0;
-}
-
-.working-hours h3 {
-    margin-bottom: 15px;
-    font-size: 20px;
-}
-
-.social-media h3 {
-    margin-bottom: 15px;
-    font-size: 20px;
-}
-
-.social-icons {
-    display: flex;
-    gap: 15px;
-}
-
-.social-icons a {
-    width: 40px;
-    height: 40px;
-    background-color: var(--light-color);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--primary-color);
-    transition: all 0.3s;
-}
-
-.social-icons a:hover {
-    background-color: var(--secondary-color);
-    color: var(--white);
-}
+/* تنسيق قسم معلومات الاتصال */
+        .contact-info {
+            background: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        
+        .contact-info h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+        
+        .contact-info h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 70px;
+            height: 3px;
+            background: #3498db;
+        }
+        
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .info-item:hover {
+            background-color: #f8f9fa;
+            transform: translateX(-5px);
+        }
+        
+        .info-item i {
+            font-size: 22px;
+            color: #3498db;
+            background: #e8f4fc;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+        
+        .info-item div {
+            flex: 1;
+        }
+        
+        .info-item h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .info-item p {
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .working-hours {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .working-hours:hover {
+            background-color: #f8f9fa;
+            transform: translateX(-5px);
+        }
+        
+        .working-hours i {
+            font-size: 22px;
+            color: #3498db;
+            background: #e8f4fc;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-left: 15px;
+            flex-shrink: 0;
+        }
+        
+        .working-hours div {
+            flex: 1;
+        }
+        
+        .working-hours h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        
+        .working-hours p {
+            color: #555;
+            margin-bottom: 5px;
+        }
+        
+        .social-media {
+            padding: 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-media:hover {
+            background-color: #f8f9fa;
+            transform: translateX(-5px);
+        }
+        
+        .social-media > i {
+            font-size: 22px;
+            color: #3498db;
+            background: #e8f4fc;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-bottom: 15px;
+        }
+        
+        .social-media h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .social-icons a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: #f1f1f1;
+            color: #555;
+            border-radius: 50%;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .social-icons a:hover {
+            background: #3498db;
+            color: #fff;
+            transform: translateY(-5px);
+        }
+         /* التجاوب مع الشاشات المختلفة */
+        @media (max-width: 768px) {
+            .contact-info {
+                padding: 20px;
+            }
+            
+            .info-item, .working-hours {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .info-item i, .working-hours i {
+                margin-left: 0;
+                margin-bottom: 15px;
+            }
+            
+            .social-icons {
+                justify-content: center;
+            }
+        }
 
 /* قسم الخريطة */
 .map-section {
