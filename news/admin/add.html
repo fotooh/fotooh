@@ -717,10 +717,10 @@ a {
                             <label for="postType">نوع الخبر *</label>
                             <select id="postType" name="postType" required>
                                 <option value="">اختر نوع الخبر</option>
-                                <option value="course">دورة تدريبية</option>
-                                <option value="workshop">ورشة عمل</option>
+                                <option value="course">دورة</option>
+                                <option value="workshop">ورشة</option>
                                 <option value="announcement">إعلان</option>
-                                <option value="news">خبر عادي</option>
+                                <option value="news">خبر</option>
                             </select>
                         </div>
                         
@@ -733,7 +733,7 @@ a {
                     <div class="form-group">
                         <label for="postImage">صورة الخبر</label>
                         <div class="image-upload">
-                            <input type="file" id="postImage" name="postImage" accept="image/*">
+                            <input style="display: none;" type="file" id="postImage" name="postImage" accept="image/*">
                             <label for="postImage" class="upload-btn">
                                 <i class="fas fa-cloud-upload-alt"></i> اختر صورة
                             </label>

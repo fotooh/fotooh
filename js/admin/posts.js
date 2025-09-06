@@ -10,9 +10,10 @@ function formatDate(dateStr) {
 
 function translateCategory(category) {
   const map = {
-    courses: 'دورة',
-    workshops: 'ورشة',
-    announcements: 'إعلان',
+    course: 'دورة',
+    workshop: 'ورشة',
+    announcement: 'إعلان',
+    news:'خبر'
   };
   return map[category] || 'أخرى';
 }
@@ -113,9 +114,8 @@ async function deletePost(postId) {
 function setupSearch(posts) {
   const searchInput = document.getElementById('searchInput');
   const filterSelect = document.getElementById('categoryFilter');
-  const searchButton = document.getElementById('searchBtn');
 
-  if (!searchInput || !filterSelect || !searchButton) return;
+  if (!searchInput || !filterSelect) return;
 
   const performSearch = () => {
     const search = searchInput.value.toLowerCase();
@@ -146,10 +146,9 @@ function setupSearch(posts) {
       : `<tr><td colspan="6">لا توجد نتائج بحث.</td></tr>`;
   };
 
-  searchButton.addEventListener('click', performSearch);
-  searchInput.addEventListener('keyup', (e) => e.key === 'Enter' && performSearch());
+  searchInput.addEventListener('input', () =>performSearch());
+  filterSelect.addEventListener('change', () =>performSearch());
 }
-
 
 // ------------------ إضافة خبر ------------------
 async function addPost(formData) {
@@ -179,7 +178,7 @@ async function addPost(formData) {
   const content = formData.get('postContent');
   const type = formData.get('postType');     // ✅ مطلوب
   const status = formData.get('postStatus');
-  const category = formData.get('postCategory'); // إذا عندك حقل كاتيجوري في النموذج
+  const category = formData.get('postType'); // إذا عندك حقل كاتيجوري في النموذج
 
   const { error } = await supabase
     .from('news')
@@ -254,6 +253,7 @@ async function init() {
         // إعداد نموذج الإضافة فقط إذا كنا في صفحة الإضافة
         if (window.location.pathname.includes('add.html')) {
             setupAddPostForm();
+            setupImagePreview(); 
         }
         
     } catch (error) {
@@ -298,7 +298,7 @@ export async function updatePost(id, formData) {
       content: formData.get('postContent'),
       type: formData.get('postType'),
       status: formData.get('postStatus'),
-      category: formData.get('postCategory'),
+      category: formData.get('postType'),
       image_url: imageUrl
     })
     .eq('id', id);
@@ -310,4 +310,24 @@ export async function updatePost(id, formData) {
     alert('تم تعديل الخبر بنجاح');
     window.location.href = 'index.html';
   }
+}
+
+function setupImagePreview() {
+    const imageInput = document.getElementById('postImage');
+    const imagePreview = document.getElementById('imagePreview');
+    
+    if (!imageInput || !imagePreview) return;
+    
+    imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.innerHTML = `<img src="${e.target.result}" alt="معاينة الصورة" style="max-width: 100%; max-height: 100%;">`;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.innerHTML = '<span>لا توجد صورة مختارة</span>';
+        }
+    });
 }

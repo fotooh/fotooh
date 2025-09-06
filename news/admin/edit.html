@@ -717,10 +717,10 @@ a {
             <div class="form-group">
               <label for="postType">نوع الخبر *</label>
               <select id="postType" name="postType" required>
-                <option value="courses">دورة تدريبية</option>
-                <option value="workshops">ورشة عمل</option>
-                <option value="announcements">إعلان</option>
-                <option value="news">خبر عادي</option>
+                <option value="course">دورة</option>
+                <option value="workshop">ورشة</option>
+                <option value="announcement">إعلان</option>
+                <option value="news">خبر</option>
               </select>
             </div>
             
@@ -800,6 +800,7 @@ a {
       document.getElementById("postTitle").value = data.title;
       document.getElementById("postContent").value = data.content;
       document.getElementById("postType").value = data.type;
+      document.getElementById("postType").value = data.category;
       document.getElementById("postStatus").value = data.status;
       document.getElementById("postDate").value = data.created_at.split("T")[0];
       document.getElementById("postTags").value = data.tags || "";

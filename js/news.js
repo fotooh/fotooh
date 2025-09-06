@@ -50,9 +50,10 @@ function formatDate(dateString) {
 
 function translateCategory(category) {
   const categories = {
-    courses: 'دورة',
-    workshops: 'ورشة',
-    announcements: 'إعلان'
+    course: 'دورة',
+    workshop: 'ورشة',
+    announcement: 'إعلان',
+    news:'خبر'
   };
   return categories[category] || 'أخرى';
 }
