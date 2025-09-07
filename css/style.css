@@ -666,12 +666,27 @@ img {
     margin-bottom: 30px;
 }
 
-.contact-form h2,
 .contact-info h2 {
     margin-bottom: 30px;
     font-size: 28px;
     color: var(--primary-color);
 }
+.contact-form h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 28px;
+            position: relative;
+            padding-bottom: 15px;
+        }
+.contact-form h2:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 70px;
+            height: 3px;
+            background: #3498db;
+        }
 
 .form-group {
     margin-bottom: 20px;
@@ -873,27 +888,90 @@ img {
             color: #fff;
             transform: translateY(-5px);
         }
-         /* التجاوب مع الشاشات المختلفة */
+          /* التجاوب مع الشاشات المختلفة */
+        @media (max-width: 992px) {
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
         @media (max-width: 768px) {
             .contact-info {
                 padding: 20px;
             }
             
-            .info-item, .working-hours {
+            .info-item, .working-hours, .social-media {
                 flex-direction: column;
+                align-items: center;
                 text-align: center;
+                padding: 20px 15px;
             }
             
             .info-item i, .working-hours i {
                 margin-left: 0;
                 margin-bottom: 15px;
+                margin-right: 0;
+            }
+            
+            .social-media > i {
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .info-item div, .working-hours div {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .info-item, .working-hours {
+                border-right: none;
+                border-bottom: 4px solid #3498db;
+            }
+            
+            .working-hours {
+                border-bottom-color: #e74c3c;
+            }
+            
+            .social-media {
+                border-right: none;
+                border-bottom: 4px solid #9b59b6;
             }
             
             .social-icons {
                 justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            /* توسيط النص في جميع العناصر */
+            .info-item h3, 
+            .working-hours h3, 
+            .info-item p, 
+            .working-hours p {
+                text-align: center;
             }
         }
 
+        @media (max-width: 480px) {
+            .contact-info {
+                padding: 15px;
+            }
+            
+            .info-item, .working-hours {
+                padding: 15px 10px;
+            }
+            
+            .info-item i, .working-hours i {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+            
+            .social-icons a {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+        }
 /* قسم الخريطة */
 .map-section {
     padding: 0 0 80px;
