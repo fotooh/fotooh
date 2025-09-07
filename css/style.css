@@ -841,6 +841,7 @@ img {
             transition: all 0.3s ease;
         }
         
+        
         .social-media:hover {
             background-color: #f8f9fa;
             transform: translateX(-5px);
@@ -929,12 +930,12 @@ img {
             }
             
             .working-hours {
-                border-bottom-color: #e74c3c;
+                border-bottom-color: #3498db;
             }
             
             .social-media {
                 border-right: none;
-                border-bottom: 4px solid #9b59b6;
+                border-bottom: 4px solid #3498db;
             }
             
             .social-icons {
