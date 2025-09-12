@@ -2,6 +2,11 @@ import supabase  from './supabase.js'; // تأكد أن المسار صحيح
 
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.querySelector('.news-grid');
+  if (!container) {
+    console.error("⚠️ عنصر .news-grid غير موجود في الصفحة");
+    return;
+  }
+
   container.innerHTML = '<p>جاري تحميل الأخبار...</p>';
 
   const { data, error } = await supabase

@@ -25,13 +25,16 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentTestimonial = 0;
     
     function showTestimonial(index) {
-        testimonials.forEach(testimonial => testimonial.classList.remove('active'));
-        dots.forEach(dot => dot.classList.remove('active'));
-        
-        testimonials[index].classList.add('active');
-        dots[index].classList.add('active');
-        currentTestimonial = index;
-    }
+    if (!testimonials[index] || !dots[index]) return; // حماية من الخطأ
+    
+    testimonials.forEach(testimonial => testimonial.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    testimonials[index].classList.add('active');
+    dots[index].classList.add('active');
+    currentTestimonial = index;
+}
+
     
     dots.forEach((dot, index) => {
         dot.addEventListener('click', () => showTestimonial(index));
