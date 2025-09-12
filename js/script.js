@@ -102,18 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // نموذج التواصل
-    const contactForm = document.getElementById('contactForm');
-    
-    if (contactForm) {
-        contactForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // هنا يمكنك إضافة كود إرسال النموذج عبر AJAX أو أي طريقة أخرى
-            alert('شكراً لتواصلك معنا! سنقوم بالرد عليك في أقرب وقت ممكن.');
-            contactForm.reset();
-        });
-    }
+   
     
     // التمرير السلس للروابط
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
