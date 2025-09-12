@@ -706,7 +706,7 @@ a {
             </header>
             
             <div class="admin-form">
-                <form id="addPostForm" data-netlify="true">
+                <form id="addPostForm" name="uploadForm" netlify enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="postTitle">عنوان الخبر *</label>
                         <input type="text" id="postTitle" name="postTitle" required>
@@ -778,6 +778,5 @@ a {
 <script src="../../js/script.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script type="module" src="../../js/supabase.js"></script>
-
 </body>
 </html>
