@@ -152,51 +152,55 @@ function setupSearch(posts) {
 
 // ------------------ إضافة خبر ------------------
 async function addPost(formData) {
-  const imageFile = formData.get('postImage');
-  let imageUrl = '';
+  try {
+    // --- بيانات الحقول ---
+    const title = formData.get('postTitle');
+    const category = formData.get('postType');
+    const date = formData.get('postDate');
+    const content = formData.get('postContent');
+    const tags = formData.get('postTags');
+    const status = formData.get('postStatus');
 
-  if (imageFile && imageFile.name) {
-    const fileName = `${Date.now()}_${imageFile.name}`;
-    const { error: uploadError } = await supabase
-      .storage
-      .from('news-images')
-      .upload(fileName, imageFile);
+    // --- رفع الصورة إن وجدت ---
+    let imageUrl = '';
+    const imageFile = formData.get('postImage');
+    if (imageFile && imageFile.name) {
+      const fileName = `${Date.now()}_${imageFile.name}`;
+      const { data, error } = await supabase.storage
+        .from('news-images') // اسم البكت في Supabase
+        .upload(fileName, imageFile);
 
-    if (uploadError) {
-      console.error('خطأ في رفع الصورة:', uploadError);
-      alert('حدث خطأ أثناء رفع الصورة');
-      return;
+      if (error) throw error;
+
+      // رابط الصورة العام
+      const { data: publicUrl } = supabase
+        .storage
+        .from('news-images')
+        .getPublicUrl(fileName);
+
+      imageUrl = publicUrl.publicUrl;
     }
 
-    imageUrl = supabase
-      .storage
-      .from('news-images')
-      .getPublicUrl(fileName).data.publicUrl;
-  }
+    // --- إدخال البيانات في جدول news ---
+    const { error: insertError } = await supabase
+      .from('news')
+      .insert([{
+        title,
+        category,
+        created_at: date,
+        content,
+        tags,
+        status,
+        image_url: imageUrl
+      }]);
 
-  const title = formData.get('postTitle');
-  const content = formData.get('postContent');
-  const type = formData.get('postType');     // ✅ مطلوب
-  const status = formData.get('postStatus');
-  const category = formData.get('postType'); // إذا عندك حقل كاتيجوري في النموذج
+    if (insertError) throw insertError;
 
-  const { error } = await supabase
-    .from('news')
-    .insert([{ 
-      title, 
-      content, 
-      type,        // ✅ لازم يتعبى
-      status, 
-      category,    // إذا عندك input اسمه postCategory
-      image_url: imageUrl 
-    }]);
-
-  if (error) {
-    console.error('خطأ في الإضافة:', error);
-    alert('فشل في إضافة الخبر');
-  } else {
-    alert('تمت الإضافة بنجاح');
+    alert('✅ تم إضافة الخبر بنجاح!');
     window.location.href = 'index.html';
+  } catch (err) {
+    console.error('❌ خطأ في إضافة الخبر:', err.message);
+    alert('فشل في إضافة الخبر: ' + err.message);
   }
 }
 
