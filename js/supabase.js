@@ -8,7 +8,7 @@
 
 // export default supabase;
 
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js'
 const supabaseUrl = 'https://iwbknenqfyvvtugnsxic.supabase.co'
 const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
