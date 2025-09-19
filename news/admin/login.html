@@ -700,10 +700,11 @@ a {
         </div>
     </div>
 
-    <script src="https://esm.run/@supabase/supabase-js@2"></script>
+    <script type="module" src="https://esm.run/@supabase/supabase-js@2"></script>
+    <script type="module" src="../../js/supabase.js"></script>
     <script src="../../js/script.js"></script>
     <script type="module">
-    import { supabase } from '../../js/supabase.js';
+    
     import { login } from '../../js/admin/auth.js';
     
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
