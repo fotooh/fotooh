@@ -1,4 +1,4 @@
-import supabase from '../supabase.js';  
+import {supabase} from '../supabase.js';  
 
 // تحسينات على وظيفة تسجيل الدخول
 export async function login(email, password) {
