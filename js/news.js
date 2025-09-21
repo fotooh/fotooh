@@ -1,4 +1,4 @@
-import supabase  from './supabase.js'; // تأكد أن المسار صحيح
+import {supabase}  from './supabase.js'; // تأكد أن المسار صحيح
 
 document.addEventListener('DOMContentLoaded', async () => {
   const container = document.querySelector('.news-grid');
