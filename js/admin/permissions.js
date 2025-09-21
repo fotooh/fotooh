@@ -1,5 +1,5 @@
 // js/admin/permissions.js
-import supabase from '../supabase.js';
+import {supabase} from '../supabase.js';
 
 // التحقق من صلاحية محددة
 export async function hasPermission(permission) {
