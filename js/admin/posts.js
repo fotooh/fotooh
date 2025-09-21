@@ -1,4 +1,4 @@
-import supabase from '../supabase.js';
+import {supabase} from '../supabase.js';
 import { logout, checkAuth } from './auth.js';
 import { requirePermission } from './permissions.js';
 
