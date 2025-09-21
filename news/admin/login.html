@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../css/font.css">
     <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/news.css">
+
     <style>
         /* تنسيقات عامة */
         :root {
@@ -231,11 +233,7 @@
             font-size: 0.95rem;
         }
 
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
+        
 
         .forgot-password {
             color: var(--secondary-color);
@@ -248,25 +246,7 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                padding: 1rem;
-            }
-            
-            .navbar ul {
-                display: none;
-                position: absolute;
-                top: 100%;
-                right: 0;
-                background: white;
-                width: 100%;
-                flex-direction: column;
-                padding: 1rem;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            }
-            
-            .navbar.active ul {
-                display: flex;
-            }
+           
             
             .mobile-menu-btn {
                 display: block;
@@ -341,23 +321,21 @@
                         </button>
                     </div>
                 </div>
-                
-                <div class="login-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="rememberMe">
-                        <span>تذكرني</span>
-                    </label>
-                    
-                    <a href="#" id="forgotPasswordLink" class="forgot-password">نسيت كلمة المرور؟</a>
-                </div>
-                
                 <button type="submit" class="btn btn-primary" id="loginBtn">
                     <span id="loginText">دخول</span>
                     <div id="loginSpinner" class="spinner" style="display:none;"></div>
                 </button>
+                
+                <div class="login-options">
+                    
+                    <a href="#" id="forgotPasswordLink" class="forgot-password">نسيت كلمة المرور؟</a>
+                </div>
+                
+                
             </form>
         </div>
     </div>
+    <script src="../../js/script.js"></script>
 
     <script type="module">
         import { login } from '../../js/admin/auth.js';
@@ -373,26 +351,12 @@
         const loginSpinner = document.getElementById('loginSpinner');
         const messageContainer = document.getElementById('messageContainer');
         const forgotPasswordLink = document.getElementById('forgotPasswordLink');
-        const rememberMe = document.getElementById('rememberMe');
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const navbar = document.getElementById('navbar');
         
-        // تحميل بيانات تذكرني إذا وجدت
-        document.addEventListener('DOMContentLoaded', function() {
-            const savedEmail = localStorage.getItem('rememberedEmail');
-            if (savedEmail) {
-                emailInput.value = savedEmail;
-                rememberMe.checked = true;
-            }
-            
-            // وضع التركيز على حقل البريد الإلكتروني
-            emailInput.focus();
-        });
+      
         
-        // تبديل القائمة على الأجهزة المحمولة
-        mobileMenuBtn.addEventListener('click', function() {
-            navbar.classList.toggle('active');
-        });
+    
         
         // إظهار/إخفاء كلمة المرور
         togglePasswordBtn.addEventListener('click', function() {
@@ -454,12 +418,6 @@
                 return;
             }
             
-            // حفظ البريد الإلكتروني إذا تم اختيار تذكرني
-            if (rememberMe.checked) {
-                localStorage.setItem('rememberedEmail', email);
-            } else {
-                localStorage.removeItem('rememberedEmail');
-            }
             
             // عرض حالة التحميل
             loginBtn.disabled = true;
