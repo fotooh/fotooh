@@ -145,79 +145,7 @@
         <p class="section-subtitle">لحظات من تأثيرنا في المجتمع</p>
         
         <div class="gallery-grid">
-            <!-- صورة 1 -->
-            <div class="gallery-item">
-                <img src="images/activities/1.jpg" alt="ورشة تدريبية في التنمية البشرية">
-                <div class="overlay">
-                    <h3>ورشة مهارات القيادة</h3>
-                    <p>2023</p>
-                </div>
-            </div>
             
-            <!-- صورة 2 -->
-            <div class="gallery-item">
-                <img src="images/activities/2.jpg" alt="جلسة علاج نفسي جماعي">
-                <div class="overlay">
-                    <h3>جلسات دعم نفسي</h3>
-                    <p>2022</p>
-                </div>
-            </div>
-            
-            <!-- صورة 3 -->
-            <div class="gallery-item">
-                <img src="images/activities/3.jpg" alt="حفل تخرج المتدربين">
-                <div class="overlay">
-                    <h3>تخريج الدفعة 15</h3>
-                    <p>2023</p>
-                </div>
-            </div>
-
-            <!-- صورة 4 -->
-            <div class="gallery-item">
-                <img src="images/activities/4.jpg" alt="حفل تخرج المتدربين">
-                <div class="overlay">
-                    <h3>تخريج الدفعة 15</h3>
-                    <p>2023</p>
-                </div>
-            </div>
-
-            <!-- صورة 5 -->
-            <div class="gallery-item">
-                <img src="images/activities/5.jpg" alt="حفل تخرج المتدربين">
-                <div class="overlay">
-                    <h3>تخريج الدفعة 15</h3>
-                    <p>2023</p>
-                </div>
-            </div>
-
-            <!-- صورة 6 -->
-            <div class="gallery-item">
-                <img src="images/activities/6.jpg" alt="حفل تخرج المتدربين">
-                <div class="overlay">
-                    <h3>تخريج الدفعة 15</h3>
-                    <p>2023</p>
-                </div>
-            </div>
-
-            <!-- صورة 7 -->
-            <div class="gallery-item">
-                <img src="images/activities/7.jpg" alt="حفل تخرج المتدربين">
-                <div class="overlay">
-                    <h3>تخريج الدفعة 15</h3>
-                    <p>2023</p>
-                </div>
-            </div>
-
-            <!-- صورة 8 -->
-            <div class="gallery-item">
-                <img src="images/activities/8.jpg" alt="حفل تخرج المتدربين">
-                <div class="overlay">
-                    <h3>تخريج الدفعة 15</h3>
-                    <p>2023</p>
-                </div>
-            </div>
-        </div>
-        
         <a href="#" class="btn">المزيد من الصور</a> <!-- رابط لصفحة معرض كاملة إن وجدت -->
     </div>
 </section>
@@ -258,5 +186,43 @@
     </footer>
 
     <script src="js/script.js"></script>
+    <script type="module">
+    import { supabase } from './js/supabase.js';
+    
+    document.addEventListener('DOMContentLoaded', async function() {
+        await loadGalleryImages();
+    });
+    
+    async function loadGalleryImages() {
+        try {
+            const { data: images, error } = await supabase
+                .from('gallery_images')
+                .select('*')
+                .order('created_at', { ascending: false });
+            
+            if (error) throw error;
+            
+            if (images && images.length > 0) {
+                displayGalleryImages(images);
+            }
+        } catch (error) {
+            console.error('Error loading gallery images:', error);
+        }
+    }
+    
+    function displayGalleryImages(images) {
+        const galleryGrid = document.querySelector('.gallery-grid');
+        
+        galleryGrid.innerHTML = images.map((image, index) => `
+            <div class="gallery-item">
+                <img src="${image.image_url}" alt="${image.title}" loading="lazy">
+                <div class="overlay">
+                    <h3>${image.title}</h3>
+                    <p>${image.description || ''}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+</script>
 </body>
 </html>

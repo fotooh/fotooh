@@ -1,4 +1,4 @@
-import supabase from './supabase.js'; // تأكد أن المسار صحيح
+import {supabase} from './supabase.js'; // تأكد أن المسار صحيح
 
 document.addEventListener('DOMContentLoaded', async () => {
   // استخراج ID الخبر من عنوان الصفحة
@@ -42,6 +42,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     <p>${data.excerpt || ''}</p>
     <div>${data.content || ''}</div>
   `;
+  // إظهار قسم التسجيل إذا كانت الدورة من نوع "courses"
+if (data.category === 'course') {
+    const registrationSection = document.getElementById('courseRegistrationSection');
+    const registerBtn = document.getElementById('registerCourseBtn');
+    
+    registrationSection.style.display = 'block';
+    
+    registerBtn.addEventListener('click', function() {
+        window.location.href = `../course-registration.html?courseId=${data.id}&courseName=${encodeURIComponent(data.title)}`;
+    });
+}
 });
 
 // تنسيق التاريخ
@@ -53,9 +64,9 @@ function formatDate(dateString) {
 // ترجمة التصنيفات
 function translateCategory(category) {
   const categories = {
-    courses: 'دورة',
-    workshops: 'ورشة',
-    announcements: 'إعلان'
+    course: 'دورة',
+    workshop: 'ورشة',
+    announcement: 'إعلان'
   };
   return categories[category] || 'أخرى';
 }

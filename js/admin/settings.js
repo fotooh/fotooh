@@ -1,11 +1,13 @@
 // js/admin/settings.js
-import supabase from '../supabase.js';
+import {supabase} from '../supabase.js';
 import { logout, checkAuth } from './auth.js';
 import { 
     hideMenuElementsByPermission, 
     requirePermission, 
     checkCurrentPagePermission,
-    getCurrentUserPermissions 
+    getCurrentUserPermissions,
+    hasPermission,
+    filterSettingsByPermission
 } from './permissions.js';
 
 // تحميل الإعدادات
@@ -105,19 +107,21 @@ async function init() {
         // التحقق من المصادقة
         const isAuthenticated = await checkAuth();
         if (!isAuthenticated) return;
-         // التحقق من صلاحية الوصول للصفحة
-        // await requirePermission('view_dashboard');
-        // await checkCurrentPagePermission();
-        //  // إخفاء عناصر القائمة الجانبية
-        // await hideMenuElementsByPermission();
+
+        // التحقق من صلاحية الوصول للصفحة
+        await requirePermission('manage_settings');
+        await checkCurrentPagePermission();
+        
+        // إخفاء عناصر القائمة الجانبية بناءً على الصلاحيات
+        await hideMenuElementsByPermission();
+        await filterSettingsByPermission();
         
         // تحميل المحتوى
-        //await loadContent();
+        await loadSettings();
 
         // إعداد المعالجات
         setupSidebarHandlers();
         setupFormHandlers();
-        await loadSettings();
 
     } catch (error) {
         console.error('حدث خطأ أثناء تهيئة الصفحة:', error);

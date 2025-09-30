@@ -119,3 +119,42 @@ export async function checkAdminAccess() {
         return false;
     }
 }
+export async function isCurrentUserAdmin() {
+    try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return false;
+
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .single();
+
+        return profile?.role === 'admin';
+    } catch (error) {
+        console.error('Error checking admin status:', error);
+        return false;
+    }
+}
+
+// الحصول على جميع المستخدمين (للمسؤولين فقط)
+export async function getAllUsers() {
+    try {
+        const isAdmin = await isCurrentUserAdmin();
+        if (!isAdmin) {
+            throw new Error('ليست لديك صلاحية لعرض جميع المستخدمين');
+        }
+
+        const { data: users, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return users;
+
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        throw error;
+    }
+}

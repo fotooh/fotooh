@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>إدارة المستخدمين | مؤسسة الفتـوح للتنمية</title>
+    <title>إدارة الصور | مؤسسة الفتـوح للتنمية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../../css/font.css">
     <link rel="stylesheet" href="../../css/style.css">
     <style>
-        /* تنسيقات عامة للوحة التحكم */
+          /* تنسيقات عامة للوحة التحكم */
 :root {
     --primary-color: #2c3e50;
     --secondary-color: #3498db;
@@ -652,9 +652,207 @@ a {
 .role-editor { background: #2196f3; color: white; }
 .role-author { background: #ff9800; color: white; }
 .role-user { background: #6c757d; color: white; }
+        .error-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #ffebee;
+            padding: 2rem;
+            border: 2px solid #f44336;
+            border-radius: 8px;
+            text-align: center;
+            z-index: 1000;
+            max-width: 80%;
+        }
+        .error-alert button {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-filter {
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .search-filter label {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-left: 10px;
+    }
+
+    #searchInput {
+      flex: 1;
+      padding: 0.8rem 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    #categoryFilter {
+      padding: 0.8rem 1rem;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
+      background-color: white;
+      font-family: 'Tajawal', sans-serif;
+      min-width: 150px;
+    }
+
+    @media (max-width: 768px) {
+      .search-filter {
+        flex-direction: column;
+        align-items: stretch;
+      }
+    }
+        /* تنسيقات صفحة الصور */
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .image-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .image-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .image-preview {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-info {
+            padding: 15px;
+        }
+
+        .image-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-color);
+        }
+
+        .image-description {
+            color: var(--text-light);
+            font-size: 14px;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .image-category {
+            display: inline-block;
+            background: var(--light-color);
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .image-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-area:hover {
+            border-color: var(--secondary-color);
+            background: rgba(52, 152, 219, 0.05);
+        }
+
+        .upload-area i {
+            font-size: 48px;
+            color: var(--text-light);
+            margin-bottom: 15px;
+        }
+
+        #imageUpload {
+            display: none;
+        }
+
+        .progress-bar {
+    margin-top: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress {
+    height: 100%;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    width: 0%;
+    transition: width 0.3s ease;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.progress-text {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 8px;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+/* عندما يكون التقدم 0%، اجعل النص يظهر بوضوح */
+.progress-bar:not([style*="width: 0%"]) .progress-text {
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.upload-status {
+    text-align: center;
+    margin-top: 15px;
+    padding: 12px;
+    background: #e3f2fd;
+    border: 1px solid #bbdefb;
+    border-radius: 6px;
+    color: #1565c0;
+    display: none;
+    font-weight: 500;
+}
+
+.upload-status i {
+    margin-left: 8px;
+}
     </style>
-    
-    
 </head>
 <body>
     <!-- شريط التنقل -->
@@ -671,7 +869,7 @@ a {
                     <li><a href="../../services.html">الخدمات</a></li>
                     <li><a href="../../news/index.html">الأخبار</a></li>
                     <li><a href="../../contact.html">اتصل بنا</a></li>
-                    <li><a href="../../news/admin/login.html">تسجيل الدخول</a></li>
+                    <li><a href="login.html">تسجيل الدخول</a></li>
                 </ul>
             </nav>
             <div class="mobile-menu-btn">
@@ -679,58 +877,95 @@ a {
             </div>
         </div>
     </header>
+
     <div class="admin-container">
+        <!-- الشريط الجانبي -->
         <aside class="admin-sidebar">
             <div class="admin-logo">
-                <!-- <img src="../../images/logo.jpg" alt="شعار المؤسسة"> -->
                 <h2>لوحة التحكم</h2>
             </div>
-            
             <nav class="admin-menu">
                 <ul>
-                    <li><a href="../admin/index.html"><i class="fas fa-newspaper"></i> الأخبار</a></li>
-                    <li><a href="../admin/images.html" data-permission="manage_images"><i class="fas fa-images"></i> الصور</a></li>
-                    <li><a href="#" class="active"><i class="fas fa-users"></i> المستخدمون</a></li>
-                    <li><a href="../settings/index.html"><i class="fas fa-cog"></i> الإعدادات</a></li>
+                    <li><a href="index.html" data-permission="view_posts"><i class="fas fa-newspaper"></i> الأخبار</a></li>
+                    <li><a href="images.html" class="active" data-permission="manage_images"><i class="fas fa-images"></i> الصور</a></li>
+                    <li><a href="../users/index.html" data-permission="manage_users"><i class="fas fa-users"></i> المستخدمون</a></li>
+                    <li><a href="../settings/index.html" data-permission="manage_settings"><i class="fas fa-cog"></i> الإعدادات</a></li>
                     <li><a href="#" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</a></li>
                 </ul>
             </nav>
         </aside>
         
+        <!-- المحتوى الرئيسي -->
         <main class="admin-content">
-            <!-- في قسم admin-header -->
-<header class="admin-header">
-    <h1>إدارة المستخدمين</h1>
-    <div class="admin-actions">
-        <button id="addUserBtn" class="btn btn-primary">
-            <i class="fas fa-plus"></i> إضافة مستخدم جديد
-        </button>
-    </div>
-</header>
+            <header class="admin-header">
+                <h1>إدارة الصور</h1>
+                <div class="admin-actions">
+                    <button class="btn btn-primary" id="addImageBtn">
+                        <i class="fas fa-plus"></i> إضافة صورة جديدة
+                    </button>
+                </div>
+            </header>
             
-            <div class="admin-posts">
-                <table class="posts-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>اسم المستخدم</th>
-                            <th>البريد الإلكتروني</th>
-                            <th>الدور</th>
-                            <th>تاريخ التسجيل</th>
-                            <th>الإجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="usersTableBody">
-                        <!-- سيتم ملء المستخدمين من خلال JavaScript -->
-                    </tbody>
-                </table>
-            </div>
+            <div class="admin-images">
+    <!-- منطقة رفع الصور -->
+    <div class="upload-area" id="uploadArea">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <h3>انقر لرفع الصور أو اسحبها هنا</h3>
+        <p>الحد الأقصى لحجم الصورة: 5MB</p>
+        <input type="file" id="imageUpload" accept="image/*" multiple>
+        <div class="progress-bar" id="progressBar" style="display: none;">
+            <div class="progress" id="progress"></div>
+            <div class="progress-text" id="progressText">يرجى الانتظار...</div>
+        </div>
+    </div>
+    <!-- أضف هذا بعد منطقة الرفع -->
+<div class="upload-status" id="uploadStatus">
+    <i class="fas fa-info-circle"></i>
+    <span id="statusMessage">جاري رفع الصورة، يرجى عدم إغلاق الصفحة...</span>
+</div>
+    
+    <!-- شبكة عرض الصور -->
+    <div class="images-grid" id="imagesGrid">
+        <!-- سيتم ملء الصور من خلال JavaScript -->
+    </div>
+</div>
         </main>
     </div>
 
-    <script type="module" src="../../js/admin/users.js"></script>
+    <!-- نموذج إضافة/تعديل الصورة -->
+    <div class="modal" id="imageModal" style="display: none;">
+        <div class="modal-content">
+            <h2 id="modalTitle">إضافة صورة جديدة</h2>
+            <form id="imageForm">
+                <div class="form-group">
+                    <label for="imageTitle">عنوان الصورة</label>
+                    <input type="text" id="imageTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="imageDescription">وصف الصورة</label>
+                    <textarea id="imageDescription" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="imageCategory">التصنيف</label>
+                    <select id="imageCategory">
+                        <option value="activities">أنشطة المؤسسة</option>
+                        <option value="events">الفعاليات</option>
+                        <option value="training">التدريب</option>
+                        <option value="therapy">العلاج النفسي</option>
+                        <option value="other">أخرى</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="saveBtn">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="../../js/script.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script type="module" src="../../js/supabase.js"></script>
+    <script type="module" src="../../js/admin/images.js"></script>
 </body>
 </html>

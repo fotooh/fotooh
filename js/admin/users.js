@@ -1,5 +1,5 @@
 // js/admin/users.js
-import supabase from '../supabase.js';
+import {supabase} from '../supabase.js';
 import { logout, checkAuth, getCurrentUser } from './auth.js';
 import { 
     hideMenuElementsByPermission, 
@@ -54,6 +54,7 @@ function translateRole(role) {
     const roles = {
         admin: 'مدير',
         editor: 'محرر',
+        author: 'كاتب',
         user: 'مستخدم'
     };
     return roles[role] || 'مستخدم';
@@ -108,21 +109,21 @@ function showUserModal(user = null) {
                     <input type="password" name="password" ${user ? 'placeholder="اتركه فارغاً للحفاظ على كلمة المرور الحالية"' : 'required'}>
                 </div>
                 <div class="form-group">
-    <label>الدور والصلاحيات</label>
-    <select name="role" id="roleSelect" required">
-        <option value="user">مستخدم عادي</option>
-        <option value="author">كاتب</option>
-        <option value="editor">محرر</option>
-        <option value="admin">مدير</option>
-    </select>
-</div>
+                    <label>الدور والصلاحيات</label>
+                    <select name="role" id="roleSelect" required>
+                        <option value="user" ${user?.role === 'user' ? 'selected' : ''}>مستخدم عادي</option>
+                        <option value="author" ${user?.role === 'author' ? 'selected' : ''}>كاتب</option>
+                        <option value="editor" ${user?.role === 'editor' ? 'selected' : ''}>محرر</option>
+                        <option value="admin" ${user?.role === 'admin' ? 'selected' : ''}>مدير</option>
+                    </select>
+                </div>
 
-<div class="form-group" id="permissionsSection">
-    <label>الصلاحيات الممنوحة:</label>
-    <div class="permissions-list" id="permissionsList">
-        <!-- سيتم ملء الصلاحيات تلقائياً -->
-    </div>
-</div>
+                <div class="form-group" id="permissionsSection">
+                    <label>الصلاحيات الممنوحة:</label>
+                    <div class="permissions-list" id="permissionsList">
+                        <!-- سيتم ملء الصلاحيات تلقائياً -->
+                    </div>
+                </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">إلغاء</button>
                     <button type="submit" class="btn btn-primary">${user ? 'تحديث' : 'إضافة'}</button>
@@ -132,12 +133,13 @@ function showUserModal(user = null) {
     `;
 
     document.body.appendChild(modal);
+    
+    // تحديث الصلاحيات عند تغيير الدور
     const roleSelect = modal.querySelector('#roleSelect');
     roleSelect.addEventListener('change', updatePermissions);
-
-     // أول مرة عند فتح النموذج
+    
+    // تحديث الصلاحيات أول مرة
     updatePermissions();
-
 
     const form = modal.querySelector('#userForm');
     form.addEventListener('submit', async (e) => {
@@ -154,7 +156,6 @@ function showUserModal(user = null) {
     });
 }
 
-// إضافة مستخدم جديد
 // إضافة مستخدم جديد مع الصلاحيات
 async function addUser(formData) {
     try {
@@ -163,35 +164,53 @@ async function addUser(formData) {
         const fullName = formData.get('fullName');
         const role = formData.get('role');
         
+        // التحقق من أن البريد الإلكتروني غير مستخدم
+        const { data: existingUser, error: checkError } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('email', email)
+            .single();
+
+        if (existingUser) {
+            throw new Error('البريد الإلكتروني مستخدم بالفعل');
+        }
+
         // تحديد الصلاحيات حسب الدور
         const permissions = getPermissionsByRole(role);
 
-        const { data, error } = await supabase.auth.signUp({
+        // 1. إنشاء المستخدم في نظام المصادقة (auth.users)
+        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
             email: email,
             password: password,
-            options: {
-                data: {
-                    full_name: fullName,
-                    role: role,
-                    permissions: permissions
-                }
+            email_confirm: true, // تأكيد البريد الإلكتروني تلقائياً
+            user_metadata: {
+                full_name: fullName,
+                role: role
             }
         });
 
-        if (error) throw error;
+        if (authError) throw authError;
 
-        // إضافة بيانات إضافية إلى جدول profiles
+        console.log('تم إنشاء المستخدم في auth:', authData.user);
+
+        // 2. إضافة بيانات إضافية إلى جدول profiles
         const { error: profileError } = await supabase
             .from('profiles')
             .insert([{
-                id: data.user.id,
+                id: authData.user.id,
                 full_name: fullName,
+                email: email,
                 role: role,
                 permissions: permissions,
-                created_at: new Date().toISOString()
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
             }]);
 
-        if (profileError) throw profileError;
+        if (profileError) {
+            // إذا فشل إضافة profile، حذف المستخدم من auth
+            await supabase.auth.admin.deleteUser(authData.user.id);
+            throw profileError;
+        }
 
         alert('تم إضافة المستخدم بنجاح');
         await loadUsers();
@@ -209,23 +228,30 @@ function getPermissionsByRole(role) {
             'view_dashboard',
             'view_posts',
             'manage_posts',
+            'manage_images',
             'manage_users',
             'manage_settings',
             'edit_all_posts',
-            'delete_all_posts'
+            'delete_all_posts',
+            'system_settings',
+            'user_management',
+            'content_management'
         ],
         editor: [
             'view_dashboard',
             'view_posts',
             'manage_posts',
+            'manage_images',
             'edit_own_posts',
-            'delete_own_posts'
+            'delete_own_posts',
+            'content_management'
         ],
         author: [
             'view_dashboard',
             'view_posts',
             'create_posts',
-            'edit_own_posts'
+            'edit_own_posts',
+            'content_management'
         ],
         user: [
             'view_dashboard'
@@ -234,23 +260,47 @@ function getPermissionsByRole(role) {
     
     return permissions[role] || permissions.user;
 }
+
 // تعديل مستخدم
 async function updateUser(userId, formData) {
     try {
+        const fullName = formData.get('fullName');
+        const email = formData.get('email');
+        const password = formData.get('password');
+        const role = formData.get('role');
+
         const updates = {
-            full_name: formData.get('fullName'),
-            role: formData.get('role')
+            full_name: fullName,
+            email: email,
+            role: role,
+            updated_at: new Date().toISOString()
         };
 
         // إذا تم إدخال كلمة مرور جديدة
-        if (formData.get('password')) {
-            const { error } = await supabase.auth.updateUser({
-                password: formData.get('password')
-            });
-            if (error) throw error;
+        if (password) {
+            const { error: passwordError } = await supabase.auth.admin.updateUserById(
+                userId,
+                { password: password }
+            );
+            if (passwordError) throw passwordError;
         }
 
-        // تحديث البيانات الإضافية
+        // تحديث البريد الإلكتروني في auth إذا تغير
+        const { data: currentUser } = await supabase
+            .from('profiles')
+            .select('email')
+            .eq('id', userId)
+            .single();
+
+        if (currentUser && currentUser.email !== email) {
+            const { error: emailError } = await supabase.auth.admin.updateUserById(
+                userId,
+                { email: email }
+            );
+            if (emailError) throw emailError;
+        }
+
+        // تحديث البيانات الإضافية في جدول profiles
         const { error } = await supabase
             .from('profiles')
             .update(updates)
@@ -269,7 +319,14 @@ async function updateUser(userId, formData) {
 
 // حذف مستخدم
 async function deleteUser(userId) {
+    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟ هذا الإجراء لا يمكن التراجع عنه.')) return;
+    
     try {
+        // 1. حذف المستخدم من نظام المصادقة (auth.users)
+        const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+        if (authError) throw authError;
+
+        // 2. حذف البيانات من جدول profiles
         const { error } = await supabase
             .from('profiles')
             .delete()
@@ -299,40 +356,13 @@ function setupSidebarHandlers() {
     }
 }
 
-// تهيئة الصفحة
-async function init() {
-    try {
-        // التحقق من المصادقة
-        const isAuthenticated = await checkAuth();
-        if (!isAuthenticated) return;
-         // التحقق من صلاحية الوصول للصفحة
-        // await requirePermission('view_dashboard');
-        // await checkCurrentPagePermission();
-        //  // إخفاء عناصر القائمة الجانبية
-        // await hideMenuElementsByPermission();
-        
-        // تحميل المحتوى
-       // await loadContent();
-
-        // إعداد المعالجات
-        setupSidebarHandlers();
-        await loadUsers();
-
-    } catch (error) {
-        console.error('حدث خطأ أثناء تهيئة الصفحة:', error);
-    }
-}
-
-// بدء التطبيق
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
 // تحديث عرض الصلاحيات حسب الدور المختار
 function updatePermissions() {
     const roleSelect = document.getElementById('roleSelect');
     const permissionsList = document.getElementById('permissionsList');
+    
+    if (!roleSelect || !permissionsList) return;
+    
     const role = roleSelect.value;
     
     const permissions = {
@@ -342,18 +372,23 @@ function updatePermissions() {
             'إدارة الإعدادات',
             'عرض لوحة التحكم',
             'تعديل جميع الأخبار',
-            'حذف جميع الأخبار'
+            'حذف جميع الأخبار',
+            'إدارة الصور',
+            'إعدادات النظام'
         ],
         editor: [
             'إدارة الأخبار',
             'عرض لوحة التحكم',
             'تعديل الأخبار الخاصة',
-            'حذف الأخبار الخاصة'
+            'حذف الأخبار الخاصة',
+            'إدارة الصور',
+            'إدارة المحتوى'
         ],
         author: [
             'إنشاء أخبار جديدة',
             'تعديل الأخبار الخاصة',
-            'عرض لوحة التحكم'
+            'عرض لوحة التحكم',
+            'إدارة المحتوى'
         ],
         user: [
             'عرض لوحة التحكم'
@@ -370,9 +405,37 @@ function updatePermissions() {
     `).join('');
 }
 
-// تهيئة الصلاحيات عند تحميل الصفحة
-document.addEventListener('DOMContentLoaded', function() {
-    if (document.getElementById('roleSelect')) {
-        updatePermissions();
+// تهيئة الصفحة
+async function init() {
+    try {
+        // التحقق من المصادقة
+        const isAuthenticated = await checkAuth();
+        if (!isAuthenticated) return;
+
+        // التحقق من صلاحية الوصول للصفحة
+        await requirePermission('manage_users');
+        await checkCurrentPagePermission();
+        
+        // إخفاء عناصر القائمة الجانبية
+        await hideMenuElementsByPermission();
+        
+        // تحميل المحتوى
+        await loadUsers();
+
+        // إعداد المعالجات
+        setupSidebarHandlers();
+
+    } catch (error) {
+        console.error('حدث خطأ أثناء تهيئة الصفحة:', error);
     }
-});
+}
+
+// بدء التطبيق
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// جعل الدالة متاحة عالمياً
+window.updatePermissions = updatePermissions;
