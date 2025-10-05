@@ -224,6 +224,61 @@
             background-color: #17a2b8;
             color: white;
         }
+        /* التجاوبية */
+@media (max-width: 992px) {
+    .admin-sidebar {
+        width: 220px;
+    }
+    
+    .admin-content {
+        margin-right: 220px;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-container {
+        flex-direction: column;
+    }
+    
+    .admin-sidebar {
+        width: 100%;
+        position: static;
+        height: auto;
+    }
+    
+    .admin-content {
+        margin-right: 0;
+    }
+    
+    .admin-menu ul {
+        display: flex;
+        overflow-x: auto;
+    }
+    
+    .admin-menu li {
+        flex-shrink: 0;
+    }
+    
+    .admin-menu li a {
+        border-right: none;
+        border-bottom: 3px solid transparent;
+    }
+    
+    .admin-menu li a.active {
+        border-right: none;
+        border-bottom-color: var(--secondary-color);
+    }
+    
+    .posts-table {
+        display: block;
+        overflow-x: auto;
+    }
+}
     </style>
 </head>
 <body>
