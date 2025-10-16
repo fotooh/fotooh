@@ -70,3 +70,34 @@ function translateCategory(category) {
   };
   return categories[category] || 'أخرى';
 }
+// --- عرض الصورة عند النقر عليها ---
+document.addEventListener('click', function(e) {
+  const img = e.target.closest('.news-image img');
+  if (!img) return;
+
+  // إنشاء عنصر overlay
+  const overlay = document.createElement('div');
+  overlay.classList.add('image-overlay');
+
+  // إنشاء نسخة مكبرة من الصورة
+  const largeImg = document.createElement('img');
+  largeImg.src = img.src;
+  largeImg.alt = img.alt;
+  largeImg.classList.add('large-image');
+
+  // زر إغلاق
+  const closeBtn = document.createElement('span');
+  closeBtn.innerHTML = '&times;';
+  closeBtn.classList.add('close-btn');
+
+  overlay.appendChild(largeImg);
+  overlay.appendChild(closeBtn);
+  document.body.appendChild(overlay);
+
+  // إغلاق عند النقر على الزر أو خارج الصورة
+  overlay.addEventListener('click', (ev) => {
+    if (ev.target === overlay || ev.target === closeBtn) {
+      overlay.remove();
+    }
+  });
+});

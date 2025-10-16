@@ -24,10 +24,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     container.innerHTML = '<p>لا توجد أخبار حالياً.</p>';
     return;
   }
+  
 
   const newsHTML = data.map((news) => {
     return `
-      <article class="news-card" data-category="${news.category}">
+      <article class="news-card" data-id="${news.id}" data-category="${news.category}">
         <div class="news-image">
           <img src="${news.image_url}" alt="${news.title}">
           <span class="news-badge">${translateCategory(news.category)}</span>
@@ -46,7 +47,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   }).join('');
 
   container.innerHTML = newsHTML;
+    addCardClickEvents();
+
 });
+function addCardClickEvents() {
+  const cards = document.querySelectorAll('.news-card');
+  cards.forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', (e) => {
+      if (e.target.tagName === 'A' || e.target.closest('a')) {
+        return;
+      }
+      const id = card.getAttribute('data-id');
+      window.location.href = `single.html?id=${id}`;
+    });
+  });
+}
 
 function formatDate(dateString) {
   const options = { year: 'numeric', month: 'long', day: 'numeric' };
