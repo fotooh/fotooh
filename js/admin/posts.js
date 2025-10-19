@@ -30,11 +30,22 @@ export function setupAddPostForm() {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const formData = new FormData(form);
+    
+    // إظهار مؤشر التحميل
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...';
+    submitBtn.disabled = true;
+
     try {
+      const formData = new FormData(form);
       await addPost(formData);
     } catch (error) {
       console.error('حدث خطأ في معالجة النموذج:', error);
+    } finally {
+      // إعادة حالة الزر
+      submitBtn.innerHTML = originalText;
+      submitBtn.disabled = false;
     }
   });
 }
@@ -157,28 +168,32 @@ async function addPost(formData) {
     const title = formData.get('postTitle');
     const category = formData.get('postType');
     const date = formData.get('postDate');
-    const content = formData.get('postContent');
+let content = '';
+    if (window.editor) {
+      content = window.editor.getData();
+    } else {
+      content = formData.get('postContent') || '';
+      console.warn('لم يتم العثور على CKEditor، استخدام textarea عادي');
+    }
     const tags = formData.get('postTags');
     const status = formData.get('postStatus');
 
-    // --- رفع الصورة إن وجدت ---
+    // --- رفع الصورة الرئيسية ---
     let imageUrl = '';
     const imageFile = formData.get('postImage');
     if (imageFile && imageFile.name) {
-      const fileName = `${Date.now()}_${imageFile.name}`;
-      const { data, error } = await supabase.storage
-        .from('news-images') // اسم البكت في Supabase
-        .upload(fileName, imageFile);
+      imageUrl = await uploadImage(imageFile);
+    }
 
-      if (error) throw error;
-
-      // رابط الصورة العام
-      const { data: publicUrl } = supabase
-        .storage
-        .from('news-images')
-        .getPublicUrl(fileName);
-
-      imageUrl = publicUrl.publicUrl;
+    // --- رفع الصور الإضافية ---
+    const additionalImages = formData.getAll('additionalImages');
+    const additionalImageUrls = [];
+    
+    for (const imageFile of additionalImages) {
+      if (imageFile && imageFile.name) {
+        const url = await uploadImage(imageFile);
+        additionalImageUrls.push(url);
+      }
     }
 
     // --- إدخال البيانات في جدول news ---
@@ -191,7 +206,8 @@ async function addPost(formData) {
         content,
         tags,
         status,
-        image_url: imageUrl
+        image_url: imageUrl,
+        additional_images: additionalImageUrls // حقل جديد في قاعدة البيانات
       }]);
 
     if (insertError) throw insertError;
@@ -204,6 +220,22 @@ async function addPost(formData) {
   }
 }
 
+// دالة مساعدة لرفع الصور
+export async function uploadImage(imageFile) {
+    const fileName = `${Date.now()}_${imageFile.name}`;
+    const { data, error } = await supabase.storage
+        .from('news-images')
+        .upload(fileName, imageFile);
+
+    if (error) throw error;
+
+    const { data: publicUrl } = supabase
+        .storage
+        .from('news-images')
+        .getPublicUrl(fileName);
+
+    return publicUrl.publicUrl;
+}
 
 
 // إعداد معالجات القائمة الجانبية
@@ -229,40 +261,33 @@ function setupSidebarHandlers() {
     });
 }
 
-// تحديث دالة init لإضافة معالجات القائمة
 async function init() {
-    try {
-        console.log('تهيئة الصفحة...');
-        
-        // التحقق من المصادقة أولاً
-        const isAuthenticated = await checkAuth();
-        if (!isAuthenticated) return;
-         // التحقق من صلاحية الوصول للصفحة
-        // await requirePermission('view_dashboard');
-        //  // إخفاء عناصر القائمة الجانبية
-        // await hideMenuElementsByPermission();
-        
-        // // تحميل المحتوى
-        // await loadContent();
-        
-        // إعداد معالجات القائمة الجانبية
-        setupSidebarHandlers();
-        
-        // تحميل الأخبار فقط إذا كنا في صفحة الفهرس
-        if (window.location.pathname.includes('index.html')) {
-            await loadPosts();
-            setupDeleteHandlers(); 
-        }
-        
-        // إعداد نموذج الإضافة فقط إذا كنا في صفحة الإضافة
-        if (window.location.pathname.includes('add.html')) {
-            setupAddPostForm();
-            setupImagePreview(); 
-        }
-        
-    } catch (error) {
-        console.error('حدث خطأ أثناء تهيئة الصفحة:', error);
+  try {
+    console.log('تهيئة الصفحة...');
+    
+    // التحقق من المصادقة أولاً
+    const isAuthenticated = await checkAuth();
+    if (!isAuthenticated) return;
+    
+    // إعداد معالجات القائمة الجانبية
+    setupSidebarHandlers();
+    
+    // تحميل الأخبار فقط إذا كنا في صفحة الفهرس
+    if (window.location.pathname.includes('index.html')) {
+      await loadPosts();
+      setupDeleteHandlers(); 
     }
+    
+    // إعداد نموذج الإضافة فقط إذا كنا في صفحة الإضافة
+    if (window.location.pathname.includes('add.html')) {
+      setupAddPostForm();
+      setupImagePreview(); 
+      setupMultipleImagesPreview(); // إضافة هذه الدالة
+    }
+    
+  } catch (error) {
+    console.error('حدث خطأ أثناء تهيئة الصفحة:', error);
+  }
 }
 // بدء التطبيق بعد تحميل DOM
 if (document.readyState === 'loading') {
@@ -272,66 +297,121 @@ if (document.readyState === 'loading') {
 }
 
 // تعديل خبر
+// تعديل خبر
 export async function updatePost(id, formData) {
-  const imageFile = formData.get('postImage');
-  let imageUrl = formData.get('existingImageUrl') || ''; // احتفظ بالصورة القديمة لو ما رفع صورة جديدة
+  try {
+    // الحصول على البيانات الحالية أولاً
+    const { data: existingPost, error: fetchError } = await supabase
+      .from('news')
+      .select('image_url, additional_images')
+      .eq('id', id)
+      .single();
+    
+    if (fetchError) throw fetchError;
 
-  if (imageFile && imageFile.name) {
-    const fileName = `${Date.now()}_${imageFile.name}`;
-    const { error: uploadError } = await supabase
-      .storage
-      .from('news-images')
-      .upload(fileName, imageFile);
-
-    if (uploadError) {
-      console.error('خطأ في رفع الصورة:', uploadError);
-      alert('حدث خطأ أثناء رفع الصورة');
-      return;
+    // --- التعامل مع الصورة الرئيسية ---
+    let imageUrl = existingPost.image_url; // استخدام الصورة الحالية كقيمة افتراضية
+    const imageFile = formData.get('postImage');
+    
+    // إذا تم رفع صورة جديدة، استبدل الصورة القديمة
+    if (imageFile && imageFile.name) {
+      imageUrl = await uploadImage(imageFile);
     }
 
-    imageUrl = supabase
-      .storage
-      .from('news-images')
-      .getPublicUrl(fileName).data.publicUrl;
-  }
+    // --- التعامل مع الصور الإضافية ---
+    const additionalImages = formData.getAll('additionalImages');
+    
+    // التأكد أن additionalImageUrls هي مصفوفة
+    let additionalImageUrls = Array.isArray(existingPost.additional_images) 
+      ? [...existingPost.additional_images] // نسخ المصفوفة الحالية
+      : []; // إذا كانت null أو غير مصفوفة، إنشاء مصفوفة فارغة
+    
+    // إضافة الصور الجديدة
+    for (const imageFile of additionalImages) {
+      if (imageFile && imageFile.name) {
+        const url = await uploadImage(imageFile);
+        additionalImageUrls.push(url);
+      }
+    }
 
-  const { error } = await supabase
-    .from('news')
-    .update({
-      title: formData.get('postTitle'),
-      content: formData.get('postContent'),
-      type: formData.get('postType'),
-      status: formData.get('postStatus'),
-      category: formData.get('postType'),
-      image_url: imageUrl
-    })
-    .eq('id', id);
+    // الحصول المحتوى من المحرر
+    let content = '';
+    if (window.editor && typeof window.editor.getData === 'function') {
+      content = window.editor.getData().trim();
+    } else {
+      content = formData.get('postContent') || '';
+    }
 
-  if (error) {
-    console.error('خطأ في التعديل:', error);
-    alert('فشل في تعديل الخبر');
-  } else {
-    alert('تم تعديل الخبر بنجاح');
+    // تحديث البيانات
+    const { error } = await supabase
+      .from('news')
+      .update({
+        title: formData.get('postTitle'),
+        content: content,
+        category: formData.get('postType'),
+        status: formData.get('postStatus'),
+        tags: formData.get('postTags'),
+        image_url: imageUrl,
+        additional_images: additionalImageUrls
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+
+    alert('✅ تم تعديل الخبر بنجاح!');
     window.location.href = 'index.html';
+  } catch (error) {
+    console.error('❌ خطأ في تعديل الخبر:', error);
+    alert('فشل في تعديل الخبر: ' + error.message);
   }
 }
-
+// إعداد معاينة الصورة الرئيسية
 function setupImagePreview() {
     const imageInput = document.getElementById('postImage');
     const imagePreview = document.getElementById('imagePreview');
     
-    if (!imageInput || !imagePreview) return;
+    if (imageInput && imagePreview) {
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="معاينة الصورة">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+}
+
+// إعداد معاينة الصور المتعددة
+function setupMultipleImagesPreview() {
+    const imagesInput = document.getElementById('additionalImages');
+    const previewContainer = document.getElementById('imagesPreviewContainer');
     
-    imageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                imagePreview.innerHTML = `<img src="${e.target.result}" alt="معاينة الصورة" style="max-width: 100%; max-height: 100%;">`;
-            };
-            reader.readAsDataURL(file);
-        } else {
-            imagePreview.innerHTML = '<span>لا توجد صورة مختارة</span>';
-        }
-    });
+    if (imagesInput && previewContainer) {
+        imagesInput.addEventListener('change', function(e) {
+            previewContainer.innerHTML = '';
+            const files = e.target.files;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'image-preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="معاينة الصورة">
+                        <button type="button" class="remove-image" data-index="${i}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    previewContainer.appendChild(previewItem);
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 }
