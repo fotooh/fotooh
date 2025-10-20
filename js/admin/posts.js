@@ -169,12 +169,14 @@ async function addPost(formData) {
     const category = formData.get('postType');
     const date = formData.get('postDate');
 let content = '';
-    if (window.editor) {
-      content = window.editor.getData();
-    } else {
-      content = formData.get('postContent') || '';
-      console.warn('لم يتم العثور على CKEditor، استخدام textarea عادي');
-    }
+const editorInstance = tinymce.get('postContent');
+if (editorInstance) {
+  content = editorInstance.getContent();
+} else {
+  content = formData.get('postContent') || '';
+  console.warn('لم يتم العثور على محرر TinyMCE، استخدام textarea عادي');
+}
+
     const tags = formData.get('postTags');
     const status = formData.get('postStatus');
 
@@ -281,8 +283,6 @@ async function init() {
     // إعداد نموذج الإضافة فقط إذا كنا في صفحة الإضافة
     if (window.location.pathname.includes('add.html')) {
       setupAddPostForm();
-      setupImagePreview(); 
-      setupMultipleImagesPreview(); // إضافة هذه الدالة
     }
     
   } catch (error) {
@@ -365,53 +365,4 @@ export async function updatePost(id, formData) {
     alert('فشل في تعديل الخبر: ' + error.message);
   }
 }
-// إعداد معاينة الصورة الرئيسية
-function setupImagePreview() {
-    const imageInput = document.getElementById('postImage');
-    const imagePreview = document.getElementById('imagePreview');
-    
-    if (imageInput && imagePreview) {
-        imageInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    imagePreview.innerHTML = `<img src="${e.target.result}" alt="معاينة الصورة">`;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
 
-// إعداد معاينة الصور المتعددة
-function setupMultipleImagesPreview() {
-    const imagesInput = document.getElementById('additionalImages');
-    const previewContainer = document.getElementById('imagesPreviewContainer');
-    
-    if (imagesInput && previewContainer) {
-        imagesInput.addEventListener('change', function(e) {
-            previewContainer.innerHTML = '';
-            const files = e.target.files;
-            
-            for (let i = 0; i < files.length; i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const previewItem = document.createElement('div');
-                    previewItem.className = 'image-preview-item';
-                    previewItem.innerHTML = `
-                        <img src="${e.target.result}" alt="معاينة الصورة">
-                        <button type="button" class="remove-image" data-index="${i}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    `;
-                    previewContainer.appendChild(previewItem);
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
