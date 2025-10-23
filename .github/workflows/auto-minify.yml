@@ -1,49 +1,58 @@
-name: Auto Minify Site Files
+name: Auto Minify Site Files (with Babel)
 
-# الـ triggers
 on:
   push:
     branches:
-      - main           # غيّرها إذا موقعك يُنشر من فرع آخر مثل gh-pages
+      - main        # غيّرها إذا موقعك يُنشر من فرع آخر مثل gh-pages
     paths:
       - '**/*.html'
       - '**/*.css'
       - '**/*.js'
-  workflow_dispatch:   # يتيح التشغيل اليدوي لأي وقت من صفحة Actions
+  workflow_dispatch: # يتيح التشغيل اليدوي من صفحة Actions
 
 jobs:
   minify:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout repository
+      # 1️⃣ تحميل المستودع
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      # 2️⃣ Minify HTML, CSS, JS (تجاهل الصور والخطوط والمجلدات الأخرى)
-      - name: Minify HTML, CSS, and JS
-        id: minify
-        uses: nizarmah/auto-minify@v3
-        with:
-          directory: '.'               # جميع الملفات في الجذر
-          exclude: 'images,fonts' # تجاهل هذه المجلدات
+      # 2️⃣ تثبيت أدوات التصغير
+      - name: Install Babel and minifiers
+        run: |
+          npm install -g babel-cli babel-preset-minify clean-css-cli html-minifier-terser
 
-      # 3️⃣ Commit & Push التغييرات الناتجة عن Minify
+      # 3️⃣ تصغير HTML
+      - name: Minify HTML files
+        run: |
+          find . -type f -name "*.html" -exec html-minifier-terser --collapse-whitespace --remove-comments --minify-css true --minify-js true -o {} {} \;
+
+      # 4️⃣ تصغير CSS
+      - name: Minify CSS files
+        run: |
+          find . -type f -name "*.css" -exec cleancss -O2 -o {} {} \;
+
+      # 5️⃣ تصغير JavaScript (بما في ذلك ملفات import/export)
+      - name: Minify JavaScript with Babel (ES Modules supported)
+        run: |
+          find . -type f -name "*.js" -exec npx babel {} --out-file {} --presets=minify \;
+
+      # 6️⃣ حفظ التعديلات في المستودع
       - name: Commit and push minified files
-        id: commit
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "Auto-minified files" || echo "No changes to commit"
+          git commit -m "Auto-minified HTML, CSS, and JS files" || echo "No changes to commit"
           git push
 
-      # 4️⃣ إشعار النجاح
-      - name: Report result
+      # 7️⃣ إشعار النجاح أو الفشل
+      - name: Report success
         if: ${{ success() }}
-        run: echo "✅ Auto-minify completed successfully!"
+        run: echo "✅ All files minified successfully!"
 
-      # 5️⃣ إشعار الفشل
       - name: Report failure
         if: ${{ failure() }}
         run: echo "❌ Auto-minify failed! Please check previous steps."
