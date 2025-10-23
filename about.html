@@ -192,43 +192,6 @@
     </footer>
 
     <script src="js/script.js"></script>
-    <script type="module">
-    import { supabase } from './js/supabase.js';
-    
-    document.addEventListener('DOMContentLoaded', async function() {
-        await loadGalleryImages();
-    });
-    
-    async function loadGalleryImages() {
-        try {
-            const { data: images, error } = await supabase
-                .from('gallery_images')
-                .select('*')
-                .order('created_at', { ascending: false });
-            
-            if (error) throw error;
-            
-            if (images && images.length > 0) {
-                displayGalleryImages(images);
-            }
-        } catch (error) {
-            console.error('Error loading gallery images:', error);
-        }
-    }
-    
-    function displayGalleryImages(images) {
-        const galleryGrid = document.querySelector('.gallery-grid');
-        
-        galleryGrid.innerHTML = images.map((image, index) => `
-            <div class="gallery-item">
-                <img src="${image.image_url}" alt="${image.title}" loading="lazy">
-                <div class="overlay">
-                    <h3>${image.title}</h3>
-                    <p>${image.description || ''}</p>
-                </div>
-            </div>
-        `).join('');
-    }
-</script>
+   <script type="module" src="js/gallery.js"></script>
 </body>
 </html>
