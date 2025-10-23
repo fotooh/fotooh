@@ -41,3 +41,4 @@ jobs:
       - name: Report failure
         if: ${{ failure() }}
         run: echo "❌ Auto-minify failed! Please check previous steps."
+        
