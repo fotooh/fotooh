@@ -23,10 +23,10 @@ jobs:
       # 2️⃣ Minify HTML, CSS, JS (تجاهل الصور والخطوط والمجلدات الأخرى)
       - name: Minify HTML, CSS, and JS
         id: minify
-        uses: nizarmah/auto-minify@v2.1.0
+        uses: nizarmah/auto-minify@v3
         with:
           directory: '.'               # جميع الملفات في الجذر
-          exclude: 'images,fonts,news' # تجاهل هذه المجلدات
+          exclude: 'images,fonts' # تجاهل هذه المجلدات
 
       # 3️⃣ Commit & Push التغييرات الناتجة عن Minify
       - name: Commit and push minified files
