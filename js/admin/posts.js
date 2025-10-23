@@ -72,23 +72,59 @@ async function loadPosts() {
       ? posts.map((post, index) => `
           <tr data-id="${post.id}">
             <td>${index + 1}</td>
-            <td>${post.title}</td>
+            <td>
+                <div class="post-title">${post.title}</div>
+                ${post.tags ? `<div class="post-tags"><small>${post.tags}</small></div>` : ''}
+            </td>
             <td><span class="badge badge-${post.category}">${translateCategory(post.category)}</span></td>
             <td>${formatDate(post.created_at)}</td>
             <td><span class="badge badge-${post.status}">${translateStatus(post.status)}</span></td>
             <td>
-              <a href="edit.html?id=${post.id}" class="btn btn-sm btn-edit"><i class="fas fa-edit"></i></a>
-              <button class="btn btn-sm btn-delete"><i class="fas fa-trash"></i></button>
+              <div class="action-buttons">
+                <a href="edit.html?id=${post.id}" class="btn btn-sm btn-edit" title="تعديل">
+                    <i class="fas fa-edit"></i>
+                    <span class="btn-text">تعديل</span>
+                </a>
+                <button class="btn btn-sm btn-delete" title="حذف">
+                    <i class="fas fa-trash"></i>
+                    <span class="btn-text">حذف</span>
+                </button>
+              </div>
             </td>
           </tr>
         `).join('')
-      : `<tr><td colspan="6">لا توجد أخبار.</td></tr>`;
+      : `<tr><td colspan="6"><div class="no-data">لا توجد أخبار.</div></td></tr>`;
 
+    // تحديث معلومات الترقيم
+    updateTableInfo(posts.length);
+    
+    // إعداد البحث والترقيم
     setupSearch(posts);
+    setupPagination(posts);
 
   } catch (error) {
     console.error('حدث خطأ أثناء تحميل الأخبار:', error);
+    const tableBody = document.getElementById('newsTableBody');
+    tableBody.innerHTML = `<tr><td colspan="6"><div class="no-data">حدث خطأ في تحميل البيانات.</div></td></tr>`;
   }
+}
+// تحديث معلومات الجدول
+function updateTableInfo(totalCount) {
+    const currentCount = document.getElementById('currentCount');
+    const totalCountEl = document.getElementById('totalCount');
+    
+    if (currentCount && totalCountEl) {
+        currentCount.textContent = totalCount;
+        totalCountEl.textContent = totalCount;
+    }
+}
+// إعداد الترقيم
+function setupPagination(posts) {
+    const paginationContainer = document.getElementById('pagination');
+    if (!paginationContainer) return;
+    
+    // هنا يمكنك إضافة منطق الترقيم إذا كنت تريد تقسيم البيانات إلى صفحات
+    // حالياً نعرض جميع البيانات في صفحة واحدة
 }
 
 // إعداد معالجات الحذف مرة واحدة فقط
@@ -133,7 +169,8 @@ function setupSearch(posts) {
     const category = filterSelect.value;
 
     const filtered = posts.filter(post =>
-      post.title.toLowerCase().includes(search) &&
+      (post.title.toLowerCase().includes(search) ||
+       (post.tags && post.tags.toLowerCase().includes(search))) &&
       (category === 'all' || post.category === category)
     );
 
@@ -144,21 +181,34 @@ function setupSearch(posts) {
       ? filtered.map((post, index) => `
           <tr data-id="${post.id}">
             <td>${index + 1}</td>
-            <td>${post.title}</td>
+            <td>
+                <div class="post-title">${post.title}</div>
+                ${post.tags ? `<div class="post-tags"><small>${post.tags}</small></div>` : ''}
+            </td>
             <td><span class="badge badge-${post.category}">${translateCategory(post.category)}</span></td>
             <td>${formatDate(post.created_at)}</td>
             <td><span class="badge badge-${post.status}">${translateStatus(post.status)}</span></td>
             <td>
-              <a href="edit.html?id=${post.id}" class="btn btn-sm btn-edit"><i class="fas fa-edit"></i></a>
-              <button class="btn btn-sm btn-delete"><i class="fas fa-trash"></i></button>
+              <div class="action-buttons">
+                <a href="edit.html?id=${post.id}" class="btn btn-sm btn-edit" title="تعديل">
+                    <i class="fas fa-edit"></i>
+                    <span class="btn-text">تعديل</span>
+                </a>
+                <button class="btn btn-sm btn-delete" title="حذف">
+                    <i class="fas fa-trash"></i>
+                    <span class="btn-text">حذف</span>
+                </button>
+              </div>
             </td>
           </tr>
         `).join('')
-      : `<tr><td colspan="6">لا توجد نتائج بحث.</td></tr>`;
+      : `<tr><td colspan="6"><div class="no-data">لا توجد نتائج للبحث.</div></td></tr>`;
+      
+    updateTableInfo(filtered.length);
   };
 
-  searchInput.addEventListener('input', () =>performSearch());
-  filterSelect.addEventListener('change', () =>performSearch());
+  searchInput.addEventListener('input', performSearch);
+  filterSelect.addEventListener('change', performSearch);
 }
 
 // ------------------ إضافة خبر ------------------
