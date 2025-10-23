@@ -1,0 +1,43 @@
+name: Auto Minify Site Files
+
+on:
+  push:
+    branches:
+      - main  # غيّرها إذا موقعك يُنشر من فرع آخر مثل gh-pages
+    paths:
+      - '**/*.html'
+      - '**/*.css'
+      - '**/*.js'
+
+jobs:
+  minify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Minify HTML, CSS, and JS (ignore images & fonts)
+        id: minify
+        uses: nizarmah/auto-minify@v2.1.0
+        with:
+          directory: '.'               # ملفاتك في الجذر
+          exclude: 'images,fonts,news' # تجاهل هذه المجلدات
+
+      - name: Commit and push minified files
+        id: commit
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "Auto-minified files" || echo "No changes to commit"
+          git push
+
+      # ✅ إشعار النجاح أو الفشل في صفحة Actions
+      - name: Report result
+        if: ${{ success() }}
+        run: echo "✅ Auto-minify completed successfully!"
+
+      - name: Report failure
+        if: ${{ failure() }}
+        run: echo "❌ Auto-minify failed! Please check previous steps."
